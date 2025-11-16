@@ -4,8 +4,10 @@ import notifee, {
   RepeatFrequency,
   TimestampTrigger,
   AuthorizationStatus,
+  EventType,
 } from 'notifee';
 import { Platform } from 'react-native';
+import {navigate} from '../navigation/navigationService';
 
 /* eslint-disable no-console */
 
@@ -19,7 +21,7 @@ class NotificationService {
   private dailyReminderId = 'daily-reminder';
 
   /**
-   * Initialize notification channels (Android)
+   * Initialize notification channels (Android) and listeners
    * Should be called when app starts
    */
   async initialize(): Promise<void> {
@@ -32,8 +34,67 @@ class NotificationService {
           sound: 'default',
         });
       }
+
+      // Initialize notification event listeners
+      this.initializeListeners();
     } catch (error) {
       console.error('Error initializing notification service:', error);
+    }
+  }
+
+  /**
+   * Initialize notification event listeners for deep linking
+   */
+  private initializeListeners(): void {
+    // Handle foreground notification press
+    notifee.onForegroundEvent(({type, detail}: {type: any; detail: any}) => {
+      if (type === EventType.PRESS && detail.notification) {
+        this.handleNotificationPress(detail.notification.data);
+      }
+    });
+
+    // Handle background notification press
+    notifee.onBackgroundEvent(
+      async ({type, detail}: {type: any; detail: any}) => {
+        if (type === EventType.PRESS && detail.notification) {
+          this.handleNotificationPress(detail.notification.data);
+        }
+      },
+    );
+  }
+
+  /**
+   * Handle notification press and navigate to appropriate screen
+   */
+  private handleNotificationPress(data?: Record<string, unknown>): void {
+    if (!data) {
+      return;
+    }
+
+    const {screen, params} = data;
+
+    switch (screen) {
+      case 'CravingSOS':
+        navigate('CravingSOS');
+        break;
+      case 'Daily':
+        navigate('MainTabs', {
+          screen: 'Daily',
+          params: params ? (params as any) : undefined,
+        });
+        break;
+      case 'Progress':
+        navigate('MainTabs', {screen: 'Progress'});
+        break;
+      case 'Journal':
+        navigate('MainTabs', {screen: 'Journal'});
+        break;
+      case 'Home':
+        navigate('MainTabs', {screen: 'Home'});
+        break;
+      default:
+        // Default to home screen
+        navigate('MainTabs', {screen: 'Home'});
     }
   }
 
@@ -78,11 +139,13 @@ class NotificationService {
    * Schedule a daily reminder notification
    * @param time Time in HH:MM format (24-hour)
    * @param message Optional custom message
+   * @param currentDay Optional current day number for personalized message
    * @returns Promise<boolean> Success status
    */
   async scheduleDailyReminder(
     time: string,
     message?: string,
+    currentDay?: number,
   ): Promise<boolean> {
     try {
       // Check permissions first
@@ -118,12 +181,18 @@ class NotificationService {
         repeatFrequency: RepeatFrequency.DAILY,
       };
 
-      // Create notification
+      // Generate motivational message based on current day
+      const motivationalMessage = message || this.getDailyMotivationalMessage(currentDay);
+
+      // Create notification with deep link data
       await notifee.createTriggerNotification(
         {
           id: this.dailyReminderId,
           title: '🌅 আজকের দিন শুরু করুন',
-          body: message || 'আজকের কাজ এবং নিশ্চিতকরণ দেখুন। আল্লাহ আপনার সাথে আছেন!',
+          body: motivationalMessage,
+          data: {
+            screen: 'Daily',
+          },
           android: {
             channelId: this.channelId,
             importance: AndroidImportance.HIGH,
@@ -147,6 +216,30 @@ class NotificationService {
       console.error('Error scheduling daily reminder:', error);
       return false;
     }
+  }
+
+  /**
+   * Get daily motivational message based on current day
+   * @param currentDay Current day number
+   * @returns string Motivational message
+   */
+  private getDailyMotivationalMessage(currentDay?: number): string {
+    const messages = [
+      'আজকের কাজ এবং নিশ্চিতকরণ দেখুন। আল্লাহ আপনার সাথে আছেন! 💪',
+      'নতুন দিন, নতুন সুযোগ! আজকের লক্ষ্য অর্জন করুন। 🌟',
+      'আলহামদুলিল্লাহ! আরেকটি ধূমপানমুক্ত দিন শুরু করুন। 🙏',
+      'আপনি শক্তিশালী! আজকের চ্যালেঞ্জ মোকাবেলা করুন। 💚',
+      'প্রতিটি দিন একটি বিজয়! আজকের কাজ সম্পূর্ণ করুন। ✨',
+      'আল্লাহ আপনার প্রচেষ্টা দেখছেন। চালিয়ে যান! 🌙',
+      'আপনি অসাধারণ কাজ করছেন! আজও সফল হবেন। 🎯',
+      'সবর করুন, আল্লাহ সবরকারীদের সাথে আছেন। 🤲',
+    ];
+
+    if (currentDay) {
+      return `দিন ${currentDay}: ${messages[currentDay % messages.length]}`;
+    }
+
+    return messages[Math.floor(Math.random() * messages.length)];
   }
 
   /**
@@ -191,6 +284,9 @@ class NotificationService {
       await notifee.displayNotification({
         title: defaultTitle,
         body: defaultMessage,
+        data: {
+          screen: 'Progress',
+        },
         android: {
           channelId: this.channelId,
           importance: AndroidImportance.HIGH,
@@ -377,6 +473,241 @@ class NotificationService {
     };
 
     return messages[day] || `মাশাআল্লাহ! ${day} দিন সম্পূর্ণ। আল্লাহ আপনার সাথে আছেন!`;
+  }
+
+  /**
+   * Schedule prayer time notifications for the day
+   * @param prayerTimes Prayer times object with all prayer times
+   * @returns Promise<boolean> Success status
+   */
+  async schedulePrayerTimeNotifications(prayerTimes: {
+    fajr: string;
+    dhuhr: string;
+    asr: string;
+    maghrib: string;
+    isha: string;
+  }): Promise<boolean> {
+    try {
+      const hasPermission = await this.checkPermissions();
+      if (!hasPermission) {
+        console.log('No notification permission, cannot schedule prayer notifications');
+        return false;
+      }
+
+      // Cancel existing prayer notifications
+      await this.cancelPrayerTimeNotifications();
+
+      const prayers = [
+        { name: 'fajr', nameBangla: 'ফজর', time: prayerTimes.fajr, emoji: '🌅' },
+        { name: 'dhuhr', nameBangla: 'যোহর', time: prayerTimes.dhuhr, emoji: '☀️' },
+        { name: 'asr', nameBangla: 'আসর', time: prayerTimes.asr, emoji: '🌤️' },
+        { name: 'maghrib', nameBangla: 'মাগরিব', time: prayerTimes.maghrib, emoji: '🌆' },
+        { name: 'isha', nameBangla: 'এশা', time: prayerTimes.isha, emoji: '🌙' },
+      ];
+
+      const now = new Date();
+      let scheduledCount = 0;
+
+      for (const prayer of prayers) {
+        const [hours, minutes] = prayer.time.split(':').map(Number);
+        const prayerDate = new Date();
+        prayerDate.setHours(hours, minutes, 0, 0);
+
+        // Only schedule if prayer time hasn't passed today
+        if (prayerDate > now) {
+          const trigger: TimestampTrigger = {
+            type: TriggerType.TIMESTAMP,
+            timestamp: prayerDate.getTime(),
+          };
+
+          await notifee.createTriggerNotification(
+            {
+              id: `prayer-${prayer.name}`,
+              title: `${prayer.emoji} ${prayer.nameBangla} নামাজের সময়`,
+              body: 'নামাজ পড়ার সময় হয়েছে। আল্লাহ আপনার নামাজ কবুল করুন।',
+              data: {
+                screen: 'Home',
+                type: 'prayer',
+                prayer: prayer.name,
+              },
+              android: {
+                channelId: this.channelId,
+                importance: AndroidImportance.HIGH,
+                pressAction: {
+                  id: 'default',
+                  launchActivity: 'default',
+                },
+                smallIcon: 'ic_notification',
+                sound: 'default',
+              },
+              ios: {
+                sound: 'default',
+                categoryId: 'prayer-time',
+              },
+            },
+            trigger,
+          );
+          scheduledCount++;
+        }
+      }
+
+      console.log(`Scheduled ${scheduledCount} prayer time notifications`);
+      return true;
+    } catch (error) {
+      console.error('Error scheduling prayer time notifications:', error);
+      return false;
+    }
+  }
+
+  /**
+   * Cancel all prayer time notifications
+   * @returns Promise<boolean> Success status
+   */
+  async cancelPrayerTimeNotifications(): Promise<boolean> {
+    try {
+      const prayers = ['fajr', 'dhuhr', 'asr', 'maghrib', 'isha'];
+      for (const prayer of prayers) {
+        await notifee.cancelNotification(`prayer-${prayer}`);
+      }
+      console.log('Prayer time notifications cancelled');
+      return true;
+    } catch (error) {
+      console.error('Error cancelling prayer time notifications:', error);
+      return false;
+    }
+  }
+
+  /**
+   * Send encouragement notification
+   * @param message Custom encouragement message
+   * @returns Promise<boolean> Success status
+   */
+  async sendEncouragementNotification(message?: string): Promise<boolean> {
+    try {
+      const hasPermission = await this.checkPermissions();
+      if (!hasPermission) {
+        return false;
+      }
+
+      const encouragementMessages = [
+        'আপনি দুর্দান্ত কাজ করছেন! চালিয়ে যান! 💪',
+        'আল্লাহ আপনার প্রচেষ্টা দেখছেন। হাল ছাড়বেন না! 🌟',
+        'প্রতিটি মুহূর্ত একটি নতুন সুযোগ। আপনি পারবেন! ✨',
+        'সবর করুন, আল্লাহ সবরকারীদের সাথে আছেন। 🤲',
+        'আপনার স্বাস্থ্য উন্নত হচ্ছে। চালিয়ে যান! 💚',
+        'আপনি শক্তিশালী এবং সক্ষম! বিশ্বাস রাখুন! 🎯',
+      ];
+
+      const randomMessage = message || encouragementMessages[Math.floor(Math.random() * encouragementMessages.length)];
+
+      await notifee.displayNotification({
+        title: '💚 উৎসাহ বার্তা',
+        body: randomMessage,
+        data: {
+          screen: 'Home',
+          type: 'encouragement',
+        },
+        android: {
+          channelId: this.channelId,
+          importance: AndroidImportance.DEFAULT,
+          pressAction: {
+            id: 'default',
+            launchActivity: 'default',
+          },
+          smallIcon: 'ic_notification',
+        },
+        ios: {
+          sound: 'default',
+          categoryId: 'encouragement',
+        },
+      });
+
+      console.log('Encouragement notification sent');
+      return true;
+    } catch (error) {
+      console.error('Error sending encouragement notification:', error);
+      return false;
+    }
+  }
+
+  /**
+   * Schedule app inactivity reminder (if app not opened for 24 hours)
+   * @returns Promise<boolean> Success status
+   */
+  async scheduleInactivityReminder(): Promise<boolean> {
+    try {
+      const hasPermission = await this.checkPermissions();
+      if (!hasPermission) {
+        return false;
+      }
+
+      // Cancel existing inactivity reminder
+      await notifee.cancelNotification('inactivity-reminder');
+
+      // Schedule for 24 hours from now
+      const reminderTime = Date.now() + (24 * 60 * 60 * 1000);
+
+      const trigger: TimestampTrigger = {
+        type: TriggerType.TIMESTAMP,
+        timestamp: reminderTime,
+      };
+
+      await notifee.createTriggerNotification(
+        {
+          id: 'inactivity-reminder',
+          title: '🌟 আমরা আপনাকে মিস করছি!',
+          body: 'আপনার অগ্রগতি দেখুন এবং আজকের কাজ সম্পূর্ণ করুন। আল্লাহ আপনার সাথে আছেন!',
+          data: {
+            screen: 'Home',
+            type: 'inactivity',
+          },
+          android: {
+            channelId: this.channelId,
+            importance: AndroidImportance.DEFAULT,
+            pressAction: {
+              id: 'default',
+              launchActivity: 'default',
+            },
+            smallIcon: 'ic_notification',
+          },
+          ios: {
+            sound: 'default',
+            categoryId: 'inactivity',
+          },
+        },
+        trigger,
+      );
+
+      console.log('Inactivity reminder scheduled for 24 hours');
+      return true;
+    } catch (error) {
+      console.error('Error scheduling inactivity reminder:', error);
+      return false;
+    }
+  }
+
+  /**
+   * Cancel inactivity reminder (call when app is opened)
+   * @returns Promise<boolean> Success status
+   */
+  async cancelInactivityReminder(): Promise<boolean> {
+    try {
+      await notifee.cancelNotification('inactivity-reminder');
+      console.log('Inactivity reminder cancelled');
+      return true;
+    } catch (error) {
+      console.error('Error cancelling inactivity reminder:', error);
+      return false;
+    }
+  }
+
+  /**
+   * Reset inactivity timer (cancel and reschedule)
+   * @returns Promise<boolean> Success status
+   */
+  async resetInactivityTimer(): Promise<boolean> {
+    await this.cancelInactivityReminder();
+    return await this.scheduleInactivityReminder();
   }
 }
 

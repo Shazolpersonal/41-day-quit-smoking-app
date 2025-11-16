@@ -260,44 +260,44 @@
     - Provide insights and patterns
     - _Requirements: 6.7_
 
-- [ ] 14. Build Settings Screen
-  - [ ] 14.1 Create profile settings section
+- [x] 14. Build Settings Screen
+  - [x] 14.1 Create profile settings section
     - Allow editing quit date
     - Update cigarette consumption data
     - Modify price per pack
     - _Requirements: 12.1_
 
-  - [ ] 14.2 Implement notification settings
+  - [x] 14.2 Implement notification settings
     - Toggle prayer time notifications
     - Set daily reminder time
     - Customize notification frequency
     - _Requirements: 12.2, 12.3_
 
-  - [ ] 14.3 Add appearance settings
+  - [x] 14.3 Add appearance settings
     - Implement font size adjustment
     - Toggle sound effects
     - Toggle haptic feedback
     - _Requirements: 12.4, 12.5_
 
-  - [ ] 14.4 Create emergency contacts management
+  - [x] 14.4 Create emergency contacts management
     - Add new emergency contacts
     - Edit existing contacts
     - Delete contacts
     - _Requirements: 12.6_
 
-  - [ ] 14.5 Implement data management options
+  - [x] 14.5 Implement data management options
     - Add export data functionality
     - Create reset/clear data option with confirmation
     - Display app version and help info
     - _Requirements: 11.5, 12.7, 12.8_
 
-  - [ ] 14.6 Add privacy and security settings
+  - [x] 14.6 Add privacy and security settings
     - Implement PIN lock toggle
     - Create PIN setup flow
     - Add biometric authentication option
     - _Requirements: 11.4_
 
-- [ ] 15. Implement Navigation System
+- [x] 15. Implement Navigation System
   - Setup React Navigation with bottom tab navigator
   - Configure stack navigators for each section
   - Implement navigation between screens
@@ -305,26 +305,26 @@
   - Setup deep linking for notifications
   - _Requirements: 10.3_
 
-- [ ] 16. Implement Notification System
-  - [ ] 16.1 Setup notification infrastructure
+- [x] 16. Implement Notification System
+  - [x] 16.1 Setup notification infrastructure
     - Configure notification library
     - Request permissions on app start
     - Handle permission denial gracefully
     - _Requirements: 9.1, 9.7_
 
-  - [ ] 16.2 Implement daily reminder notifications
+  - [x] 16.2 Implement daily reminder notifications
     - Schedule morning notification with day's tasks
     - Include motivational message
     - Handle notification tap to open app
     - _Requirements: 9.1_
 
-  - [ ] 16.3 Setup prayer time notifications
+  - [x] 16.3 Setup prayer time notifications
     - Calculate prayer times based on location
     - Schedule notifications for each prayer
     - Respect user's notification preferences
     - _Requirements: 9.2, 5.2_
 
-  - [ ] 16.4 Add milestone and encouragement notifications
+  - [x] 16.4 Add milestone and encouragement notifications
     - Send notification on milestone achievement
     - Schedule motivational notifications
     - Send reminder if app not opened for 24 hours
