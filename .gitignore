@@ -70,3 +70,20 @@ ios/fastlane/test_output
 .env
 .env.local
 .env.*.local
+
+# Production
+android/app/release.keystore
+android/app/*.keystore
+!android/app/debug.keystore
+*.jks
+*.p12
+*.mobileprovision
+*.cer
+*.certSigningRequest
+
+# Build outputs
+android/app/build/outputs/
+ios/build/
+*.apk
+*.aab
+*.ipa

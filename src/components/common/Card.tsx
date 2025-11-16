@@ -1,5 +1,5 @@
 import React from 'react';
-import {View, StyleSheet, ViewStyle} from 'react-native';
+import {View, StyleSheet, ViewStyle, TouchableOpacity} from 'react-native';
 import {colors, spacing, borderRadius, shadows} from '../../constants/theme';
 
 export type CardVariant = 'elevated' | 'outlined' | 'filled';
@@ -10,6 +10,9 @@ export interface CardProps {
   padding?: keyof typeof spacing;
   style?: ViewStyle;
   onPress?: () => void;
+  accessibilityLabel?: string;
+  accessibilityHint?: string;
+  accessibilityRole?: 'button' | 'none';
 }
 
 export const Card: React.FC<CardProps> = ({
@@ -17,6 +20,10 @@ export const Card: React.FC<CardProps> = ({
   variant = 'elevated',
   padding = 'md',
   style,
+  onPress,
+  accessibilityLabel,
+  accessibilityHint,
+  accessibilityRole = 'none',
 }) => {
   const cardStyles = [
     styles.card,
@@ -25,7 +32,30 @@ export const Card: React.FC<CardProps> = ({
     style,
   ];
 
-  return <View style={cardStyles}>{children}</View>;
+  if (onPress) {
+    return (
+      <TouchableOpacity
+        style={cardStyles}
+        onPress={onPress}
+        activeOpacity={0.7}
+        accessible={true}
+        accessibilityRole={accessibilityRole}
+        accessibilityLabel={accessibilityLabel}
+        accessibilityHint={accessibilityHint}
+        hitSlop={{top: 4, bottom: 4, left: 4, right: 4}}>
+        {children}
+      </TouchableOpacity>
+    );
+  }
+
+  return (
+    <View
+      style={cardStyles}
+      accessible={!!accessibilityLabel}
+      accessibilityLabel={accessibilityLabel}>
+      {children}
+    </View>
+  );
 };
 
 const styles = StyleSheet.create({

@@ -1,13 +1,15 @@
 import React from 'react';
-import {View, Text, StyleSheet, TouchableOpacity, Alert, Vibration} from 'react-native';
+import {View, Text, StyleSheet, TouchableOpacity, Alert} from 'react-native';
 import {colors, spacing, typography, borderRadius, shadows} from '../../constants/theme';
 import {Card} from '../common/Card';
+import {useHaptic} from '../../hooks/useHaptic';
 
 export interface QuickActionsProps {
   onSOSPress: () => void;
   onJournalPress?: () => void;
   onProgressPress?: () => void;
   onTipsPress?: () => void;
+  onDuaPress?: () => void;
 }
 
 export const QuickActions: React.FC<QuickActionsProps> = ({
@@ -15,10 +17,13 @@ export const QuickActions: React.FC<QuickActionsProps> = ({
   onJournalPress,
   onProgressPress,
   onTipsPress,
+  onDuaPress,
 }) => {
+  const haptic = useHaptic();
+
   const handleSOSPress = () => {
-    // Haptic feedback - vibrate for 100ms
-    Vibration.vibrate(100);
+    // Haptic feedback for SOS button
+    haptic.sosButtonPress();
     
     Alert.alert(
       'জরুরি সাহায্য',
@@ -31,12 +36,17 @@ export const QuickActions: React.FC<QuickActionsProps> = ({
         {
           text: 'হ্যাঁ, সাহায্য চাই',
           onPress: () => {
-            Vibration.vibrate(50);
+            haptic.medium();
             onSOSPress();
           },
         },
       ],
     );
+  };
+
+  const handleActionPress = (action: () => void) => {
+    haptic.light();
+    action();
   };
 
   return (
@@ -65,7 +75,7 @@ export const QuickActions: React.FC<QuickActionsProps> = ({
         {onJournalPress && (
           <TouchableOpacity
             style={styles.actionButton}
-            onPress={onJournalPress}
+            onPress={() => handleActionPress(onJournalPress)}
             activeOpacity={0.7}>
             <View style={styles.actionIconContainer}>
               <Text style={styles.actionIcon}>📝</Text>
@@ -78,7 +88,7 @@ export const QuickActions: React.FC<QuickActionsProps> = ({
         {onProgressPress && (
           <TouchableOpacity
             style={styles.actionButton}
-            onPress={onProgressPress}
+            onPress={() => handleActionPress(onProgressPress)}
             activeOpacity={0.7}>
             <View style={styles.actionIconContainer}>
               <Text style={styles.actionIcon}>📊</Text>
@@ -91,12 +101,25 @@ export const QuickActions: React.FC<QuickActionsProps> = ({
         {onTipsPress && (
           <TouchableOpacity
             style={styles.actionButton}
-            onPress={onTipsPress}
+            onPress={() => handleActionPress(onTipsPress)}
             activeOpacity={0.7}>
             <View style={styles.actionIconContainer}>
               <Text style={styles.actionIcon}>💡</Text>
             </View>
             <Text style={styles.actionLabel}>টিপস</Text>
+          </TouchableOpacity>
+        )}
+
+        {/* Dua Action */}
+        {onDuaPress && (
+          <TouchableOpacity
+            style={styles.actionButton}
+            onPress={() => handleActionPress(onDuaPress)}
+            activeOpacity={0.7}>
+            <View style={styles.actionIconContainer}>
+              <Text style={styles.actionIcon}>🤲</Text>
+            </View>
+            <Text style={styles.actionLabel}>দোয়া</Text>
           </TouchableOpacity>
         )}
       </View>

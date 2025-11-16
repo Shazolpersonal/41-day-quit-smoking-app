@@ -1,6 +1,8 @@
 import React, {useEffect, useRef} from 'react';
 import {View, Text, StyleSheet, Animated, ViewStyle, TextStyle} from 'react-native';
 import {colors, spacing, borderRadius, typography} from '../../constants/theme';
+import {useAccessibility} from '../../hooks/useAccessibility';
+import {getProgressLabel} from '../../utils/accessibility';
 
 export interface ProgressBarProps {
   progress: number; // 0 to 1
@@ -12,6 +14,9 @@ export interface ProgressBarProps {
   label?: string;
   style?: ViewStyle;
   labelStyle?: TextStyle;
+  accessibilityLabel?: string;
+  total?: number;
+  current?: number;
 }
 
 export const ProgressBar: React.FC<ProgressBarProps> = ({
@@ -24,37 +29,72 @@ export const ProgressBar: React.FC<ProgressBarProps> = ({
   label,
   style,
   labelStyle,
+  accessibilityLabel,
+  total,
+  current,
 }) => {
   const animatedWidth = useRef(new Animated.Value(0)).current;
+  const {scaledFontSize, isReduceMotionEnabled} = useAccessibility();
   
   // Ensure progress is between 0 and 1
   const clampedProgress = Math.max(0, Math.min(1, progress));
   const percentage = Math.round(clampedProgress * 100);
 
+  // Use reduced animation if user prefers
+  const shouldAnimate = animated && !isReduceMotionEnabled;
+
   useEffect(() => {
-    if (animated) {
+    if (shouldAnimate) {
       Animated.timing(animatedWidth, {
         toValue: clampedProgress,
-        duration: 500,
+        duration: isReduceMotionEnabled ? 100 : 500,
         useNativeDriver: false,
       }).start();
     } else {
       animatedWidth.setValue(clampedProgress);
     }
-  }, [clampedProgress, animated, animatedWidth]);
+  }, [clampedProgress, shouldAnimate, animatedWidth, isReduceMotionEnabled]);
 
   const progressWidth = animatedWidth.interpolate({
     inputRange: [0, 1],
     outputRange: ['0%', '100%'],
   });
 
+  // Generate accessibility label
+  const getA11yLabel = (): string => {
+    if (accessibilityLabel) {
+      return accessibilityLabel;
+    }
+    if (total && current !== undefined) {
+      return getProgressLabel(current, total);
+    }
+    return `অগ্রগতি ${percentage} শতাংশ`;
+  };
+
   return (
-    <View style={[styles.container, style]}>
+    <View 
+      style={[styles.container, style]}
+      accessible={true}
+      accessibilityRole="progressbar"
+      accessibilityLabel={getA11yLabel()}
+      accessibilityValue={{
+        min: 0,
+        max: 100,
+        now: percentage,
+      }}>
       {label && (
         <View style={styles.labelContainer}>
-          <Text style={[styles.label, labelStyle]}>{label}</Text>
+          <Text 
+            style={[styles.label, {fontSize: scaledFontSize(typography.fontSize.sm)}, labelStyle]}
+            accessible={false}>
+            {label}
+          </Text>
           {showPercentage && (
-            <Text style={[styles.percentage, labelStyle]}>{percentage}%</Text>
+            <Text 
+              style={[styles.percentage, {fontSize: scaledFontSize(typography.fontSize.sm)}, labelStyle]}
+              accessible={false}>
+              {percentage}%
+            </Text>
           )}
         </View>
       )}
@@ -63,7 +103,8 @@ export const ProgressBar: React.FC<ProgressBarProps> = ({
         style={[
           styles.track,
           {height, backgroundColor, borderRadius: height / 2},
-        ]}>
+        ]}
+        accessible={false}>
         <Animated.View
           style={[
             styles.fill,
@@ -73,11 +114,16 @@ export const ProgressBar: React.FC<ProgressBarProps> = ({
               borderRadius: height / 2,
             },
           ]}
+          accessible={false}
         />
       </View>
       
       {!label && showPercentage && (
-        <Text style={[styles.percentageOnly, labelStyle]}>{percentage}%</Text>
+        <Text 
+          style={[styles.percentageOnly, {fontSize: scaledFontSize(typography.fontSize.xs)}, labelStyle]}
+          accessible={false}>
+          {percentage}%
+        </Text>
       )}
     </View>
   );

@@ -16,6 +16,11 @@ export type RootStackParamList = {
   JournalEdit: {entryId?: string};
   DuaList: undefined;
   DuaDetail: {duaId: string};
+  QuranVerses: undefined;
+  QuranVerseDetail: {verseId: string};
+  HadithList: undefined;
+  HadithDetail: {hadithId: string};
+  PrayerTimes: undefined;
   EmergencyContactEdit: {contactId?: string};
   PinSetup: undefined;
   PinVerify: undefined;

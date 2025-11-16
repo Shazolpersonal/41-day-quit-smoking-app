@@ -106,6 +106,10 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({navigation}) => {
     }
   };
 
+  const handleDuaPress = () => {
+    navigation.navigate('DuaList');
+  };
+
   // Get today's content
   const getTodayContent = () => {
     if (!progress?.currentDay) return null;
@@ -256,6 +260,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({navigation}) => {
           onJournalPress={handleJournalPress}
           onProgressPress={handleProgressPress}
           onTipsPress={handleTipsPress}
+          onDuaPress={handleDuaPress}
         />
 
         {/* Motivational Message */}

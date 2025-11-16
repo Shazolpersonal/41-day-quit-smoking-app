@@ -1,3 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">৪১ দিনে ধূমপান ত্যাগ</string>
+    <!-- App Name -->
+    <string name="app_name">৪১ দিনে ধূমপান মুক্তি</string>
+    <string name="app_name_english">41 Days Quit Smoking</string>
+    
+    <!-- Splash Screen -->
+    <string name="splash_subtitle">ইসলামিক পথনির্দেশনা সহ</string>
+    <string name="splash_tagline">আল্লাহর সাহায্যে সফলতা</string>
+    
+    <!-- Common -->
+    <string name="loading">লোড হচ্ছে...</string>
+    <string name="please_wait">অনুগ্রহ করে অপেক্ষা করুন</string>
 </resources>

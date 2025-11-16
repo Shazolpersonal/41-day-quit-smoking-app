@@ -8,6 +8,9 @@ import {
   TextStyle,
 } from 'react-native';
 import {colors, spacing, borderRadius, typography, shadows} from '../../constants/theme';
+import {useHaptic} from '../../hooks/useHaptic';
+import {useAccessibility} from '../../hooks/useAccessibility';
+import {A11Y_HINTS} from '../../constants/accessibility';
 
 export type ButtonVariant = 'primary' | 'secondary' | 'outline' | 'text';
 export type ButtonSize = 'small' | 'medium' | 'large';
@@ -23,6 +26,8 @@ export interface ButtonProps {
   icon?: React.ReactNode;
   style?: ViewStyle;
   textStyle?: TextStyle;
+  accessibilityLabel?: string;
+  accessibilityHint?: string;
 }
 
 export const Button: React.FC<ButtonProps> = ({
@@ -36,7 +41,17 @@ export const Button: React.FC<ButtonProps> = ({
   icon,
   style,
   textStyle,
+  accessibilityLabel,
+  accessibilityHint,
 }) => {
+  const haptic = useHaptic();
+  const {scaledFontSize, minTouchTargetSize} = useAccessibility();
+
+  const handlePress = () => {
+    haptic.buttonPress();
+    onPress();
+  };
+
   const buttonStyles = [
     styles.button,
     styles[`button_${variant}`],
@@ -51,18 +66,30 @@ export const Button: React.FC<ButtonProps> = ({
     styles[`text_${variant}`],
     styles[`text_${size}`],
     disabled && styles.textDisabled,
+    {fontSize: scaledFontSize(typography.fontSize[size === 'small' ? 'sm' : size === 'large' ? 'lg' : 'md'])},
     textStyle,
   ];
 
   return (
     <TouchableOpacity
       style={buttonStyles}
-      onPress={onPress}
+      onPress={handlePress}
       disabled={disabled || loading}
-      activeOpacity={0.7}>
+      activeOpacity={0.7}
+      accessible={true}
+      accessibilityRole="button"
+      accessibilityLabel={accessibilityLabel || title}
+      accessibilityHint={accessibilityHint || A11Y_HINTS.DOUBLE_TAP_TO_ACTIVATE}
+      accessibilityState={{
+        disabled: disabled || loading,
+        busy: loading,
+      }}
+      hitSlop={{top: 8, bottom: 8, left: 8, right: 8}}
+      testID={`button-${title.toLowerCase().replace(/\s+/g, '-')}`}>
       {loading ? (
         <ActivityIndicator
           color={variant === 'primary' ? colors.neutral.white : colors.primary.main}
+          accessibilityLabel="লোড হচ্ছে"
         />
       ) : (
         <>
@@ -101,21 +128,21 @@ const styles = StyleSheet.create({
     elevation: 0,
   },
   
-  // Sizes
+  // Sizes - All meet minimum touch target size (44x44)
   button_small: {
     paddingVertical: spacing.xs,
     paddingHorizontal: spacing.md,
-    minHeight: 32,
+    minHeight: 44, // Minimum touch target
   },
   button_medium: {
     paddingVertical: spacing.sm,
     paddingHorizontal: spacing.lg,
-    minHeight: 44,
+    minHeight: 48, // Recommended touch target
   },
   button_large: {
     paddingVertical: spacing.md,
     paddingHorizontal: spacing.xl,
-    minHeight: 56,
+    minHeight: 56, // Large touch target
   },
   
   fullWidth: {

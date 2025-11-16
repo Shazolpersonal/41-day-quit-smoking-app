@@ -65,6 +65,67 @@ describe('ProgressCalculatorService', () => {
 
       jest.restoreAllMocks();
     });
+
+    it('should handle exactly one day', () => {
+      const quitDate = '2024-01-01T00:00:00.000Z';
+      const mockNow = new Date('2024-01-02T00:00:00.000Z');
+      jest.spyOn(global, 'Date').mockImplementation(() => mockNow as any);
+
+      const result = progressCalculatorService.calculateSmokeFreeTime(quitDate);
+
+      expect(result.days).toBe(1);
+      expect(result.hours).toBe(0);
+      expect(result.minutes).toBe(0);
+      expect(result.seconds).toBe(0);
+      expect(result.totalSeconds).toBe(86400);
+
+      jest.restoreAllMocks();
+    });
+
+    it('should handle exactly one hour', () => {
+      const quitDate = '2024-01-01T00:00:00.000Z';
+      const mockNow = new Date('2024-01-01T01:00:00.000Z');
+      jest.spyOn(global, 'Date').mockImplementation(() => mockNow as any);
+
+      const result = progressCalculatorService.calculateSmokeFreeTime(quitDate);
+
+      expect(result.days).toBe(0);
+      expect(result.hours).toBe(1);
+      expect(result.minutes).toBe(0);
+      expect(result.seconds).toBe(0);
+      expect(result.totalSeconds).toBe(3600);
+
+      jest.restoreAllMocks();
+    });
+
+    it('should handle exactly one minute', () => {
+      const quitDate = '2024-01-01T00:00:00.000Z';
+      const mockNow = new Date('2024-01-01T00:01:00.000Z');
+      jest.spyOn(global, 'Date').mockImplementation(() => mockNow as any);
+
+      const result = progressCalculatorService.calculateSmokeFreeTime(quitDate);
+
+      expect(result.days).toBe(0);
+      expect(result.hours).toBe(0);
+      expect(result.minutes).toBe(1);
+      expect(result.seconds).toBe(0);
+      expect(result.totalSeconds).toBe(60);
+
+      jest.restoreAllMocks();
+    });
+
+    it('should handle large time spans (over 41 days)', () => {
+      const quitDate = '2024-01-01T00:00:00.000Z';
+      const mockNow = new Date('2024-03-01T00:00:00.000Z'); // 60 days later
+      jest.spyOn(global, 'Date').mockImplementation(() => mockNow as any);
+
+      const result = progressCalculatorService.calculateSmokeFreeTime(quitDate);
+
+      expect(result.days).toBe(60);
+      expect(result.totalSeconds).toBeGreaterThan(0);
+
+      jest.restoreAllMocks();
+    });
   });
 
   describe('calculateMoneySaved', () => {
@@ -134,6 +195,101 @@ describe('ProgressCalculatorService', () => {
       expect(result.weekly).toBe(0);
       expect(result.monthly).toBe(0);
       expect(result.yearly).toBe(0);
+    });
+
+    it('should handle multiple packs per day', () => {
+      const heavySmoker: User = {
+        ...mockUser,
+        cigarettesPerDay: 40, // 2 packs per day
+      };
+
+      const quitDate = '2024-01-01T00:00:00.000Z';
+      const mockNow = new Date('2024-01-02T00:00:00.000Z'); // 1 day later
+      jest.spyOn(global, 'Date').mockImplementation(() => mockNow as any);
+
+      const result = progressCalculatorService.calculateMoneySaved(heavySmoker, quitDate);
+
+      // Daily cost: (40 / 20) * 350 = 700 BDT
+      expect(result.total).toBe(700);
+      expect(result.daily).toBe(700);
+
+      jest.restoreAllMocks();
+    });
+
+    it('should handle expensive cigarettes', () => {
+      const expensiveSmoker: User = {
+        ...mockUser,
+        pricePerPack: 1000,
+      };
+
+      const quitDate = '2024-01-01T00:00:00.000Z';
+      const mockNow = new Date('2024-01-02T00:00:00.000Z'); // 1 day later
+      jest.spyOn(global, 'Date').mockImplementation(() => mockNow as any);
+
+      const result = progressCalculatorService.calculateMoneySaved(expensiveSmoker, quitDate);
+
+      expect(result.daily).toBe(1000);
+      expect(result.total).toBe(1000);
+
+      jest.restoreAllMocks();
+    });
+
+    it('should handle different pack sizes', () => {
+      const user10Pack: User = {
+        ...mockUser,
+        cigarettesPerDay: 10,
+        cigarettesPerPack: 10,
+        pricePerPack: 200,
+      };
+
+      const quitDate = '2024-01-01T00:00:00.000Z';
+      const mockNow = new Date('2024-01-02T00:00:00.000Z'); // 1 day later
+      jest.spyOn(global, 'Date').mockImplementation(() => mockNow as any);
+
+      const result = progressCalculatorService.calculateMoneySaved(user10Pack, quitDate);
+
+      // Daily cost: (10 / 10) * 200 = 200 BDT
+      expect(result.daily).toBe(200);
+      expect(result.total).toBe(200);
+
+      jest.restoreAllMocks();
+    });
+
+    it('should floor money values to avoid decimals', () => {
+      const userWithOddNumbers: User = {
+        ...mockUser,
+        cigarettesPerDay: 7,
+        cigarettesPerPack: 20,
+        pricePerPack: 333,
+      };
+
+      const quitDate = '2024-01-01T00:00:00.000Z';
+      const mockNow = new Date('2024-01-02T00:00:00.000Z'); // 1 day later
+      jest.spyOn(global, 'Date').mockImplementation(() => mockNow as any);
+
+      const result = progressCalculatorService.calculateMoneySaved(userWithOddNumbers, quitDate);
+
+      // All values should be integers
+      expect(Number.isInteger(result.total)).toBe(true);
+      expect(Number.isInteger(result.daily)).toBe(true);
+      expect(Number.isInteger(result.weekly)).toBe(true);
+      expect(Number.isInteger(result.monthly)).toBe(true);
+      expect(Number.isInteger(result.yearly)).toBe(true);
+
+      jest.restoreAllMocks();
+    });
+
+    it('should calculate correctly for partial days', () => {
+      const quitDate = '2024-01-01T00:00:00.000Z';
+      const mockNow = new Date('2024-01-01T12:00:00.000Z'); // 0.5 days later
+      jest.spyOn(global, 'Date').mockImplementation(() => mockNow as any);
+
+      const result = progressCalculatorService.calculateMoneySaved(mockUser, quitDate);
+
+      // 0.5 days * 350 = 175 BDT
+      expect(result.total).toBe(175);
+
+      jest.restoreAllMocks();
     });
   });
 

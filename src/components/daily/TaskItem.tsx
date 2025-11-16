@@ -8,6 +8,7 @@ import {
 } from 'react-native';
 import {colors, spacing, borderRadius, typography} from '../../constants/theme';
 import {DailyTask} from '../../types';
+import {useHaptic} from '../../hooks/useHaptic';
 
 export interface TaskItemProps {
   task: DailyTask;
@@ -17,6 +18,16 @@ export interface TaskItemProps {
 export const TaskItem: React.FC<TaskItemProps> = ({task, onToggle}) => {
   const scaleAnim = useRef(new Animated.Value(1)).current;
   const opacityAnim = useRef(new Animated.Value(1)).current;
+  const haptic = useHaptic();
+  const previousCompleted = useRef(task.completed);
+
+  useEffect(() => {
+    // Trigger haptic feedback when task is completed (not on initial render)
+    if (task.completed && !previousCompleted.current) {
+      haptic.taskCompleted();
+    }
+    previousCompleted.current = task.completed;
+  }, [task.completed, haptic]);
 
   useEffect(() => {
     if (task.completed) {

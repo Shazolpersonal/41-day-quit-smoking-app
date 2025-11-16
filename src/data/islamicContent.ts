@@ -4,6 +4,12 @@
  * For the 41-Day Quit Smoking Program
  */
 
+import { Hadith } from "@/types";
+
+import { Hadith } from "@/types";
+
+import { Hadith } from "@/types";
+
 export interface Dua {
   id: string;
   title: string;
@@ -574,6 +580,129 @@ export const quranVerses: QuranVerse[] = [
 ];
 
 /**
+ * Hadith Collection - Related to Health and Perseverance
+ */
+export const hadithCollection: Hadith[] = [
+  // Health-related Hadith
+  {
+    id: 'hadith_health_1',
+    arabic: 'نِعْمَتَانِ مَغْبُونٌ فِيهِمَا كَثِيرٌ مِنَ النَّاسِ: الصِّحَّةُ وَالْفَرَاغُ',
+    banglaTranslation: 'দুটি নেয়ামত এমন যাতে অনেক মানুষ ক্ষতিগ্রস্ত: স্বাস্থ্য এবং অবসর সময়।',
+    source: 'সহীহ বুখারী',
+    reference: 'হাদীস নং ৬৪১২',
+    category: 'health',
+    relevance: 'স্বাস্থ্য একটি মহান নেয়ামত যার যত্ন নেওয়া আমাদের দায়িত্ব',
+  },
+  {
+    id: 'hadith_health_2',
+    arabic: 'إِنَّ لِجَسَدِكَ عَلَيْكَ حَقًّا',
+    banglaTranslation: 'নিশ্চয়ই তোমার শরীরের তোমার উপর অধিকার রয়েছে।',
+    source: 'সহীহ বুখারী',
+    reference: 'হাদীস নং ১৯৭৫',
+    category: 'health',
+    relevance: 'শরীরের যত্ন নেওয়া এবং ক্ষতিকর জিনিস থেকে বিরত থাকা আমাদের দায়িত্ব',
+  },
+  {
+    id: 'hadith_health_3',
+    arabic: 'لَا ضَرَرَ وَلَا ضِرَارَ',
+    banglaTranslation: 'নিজের বা অন্যের ক্ষতি করা যাবে না।',
+    source: 'সুনান ইবনে মাজাহ',
+    reference: 'হাদীস নং ২৩৪০',
+    category: 'health',
+    relevance: 'ধূমপান নিজের এবং অন্যদের ক্ষতি করে, তাই এটি ত্যাগ করা জরুরি',
+  },
+  {
+    id: 'hadith_health_4',
+    arabic: 'الْمُؤْمِنُ الْقَوِيُّ خَيْرٌ وَأَحَبُّ إِلَى اللَّهِ مِنَ الْمُؤْمِنِ الضَّعِيفِ',
+    banglaTranslation: 'শক্তিশালী মুমিন দুর্বল মুমিনের চেয়ে উত্তম এবং আল্লাহর কাছে বেশি প্রিয়।',
+    source: 'সহীহ মুসলিম',
+    reference: 'হাদীস নং ২৬৬৪',
+    category: 'health',
+    relevance: 'শারীরিক ও মানসিক শক্তি বৃদ্ধি করা এবং স্বাস্থ্যকর জীবনযাপন করা',
+  },
+
+  // Perseverance and Patience
+  {
+    id: 'hadith_patience_1',
+    arabic: 'وَمَنْ يَتَصَبَّرْ يُصَبِّرْهُ اللَّهُ',
+    banglaTranslation: 'যে ধৈর্য ধারণ করার চেষ্টা করে, আল্লাহ তাকে ধৈর্যশীল করে দেন।',
+    source: 'সহীহ বুখারী',
+    reference: 'হাদীস নং ১৪৬৯',
+    category: 'patience',
+    relevance: 'ধূমপান ত্যাগের কঠিন সময়ে ধৈর্য ধরলে আল্লাহ সাহায্য করবেন',
+  },
+  {
+    id: 'hadith_patience_2',
+    arabic: 'عَجَبًا لِأَمْرِ الْمُؤْمِنِ إِنَّ أَمْرَهُ كُلَّهُ خَيْرٌ',
+    banglaTranslation: 'মুমিনের ব্যাপারটি আশ্চর্যজনক! তার সব বিষয়ই কল্যাণকর।',
+    source: 'সহীহ মুসলিম',
+    reference: 'হাদীস নং ২৯৯৯',
+    category: 'patience',
+    relevance: 'কঠিন সময়েও ধৈর্য ধরলে তাতে কল্যাণ রয়েছে',
+  },
+  {
+    id: 'hadith_patience_3',
+    arabic: 'مَا يُصِيبُ الْمُسْلِمَ مِنْ نَصَبٍ وَلَا وَصَبٍ وَلَا هَمٍّ وَلَا حُزْنٍ وَلَا أَذًى وَلَا غَمٍّ حَتَّى الشَّوْكَةِ يُشَاكُهَا إِلَّا كَفَّرَ اللَّهُ بِهَا مِنْ خَطَايَاهُ',
+    banglaTranslation: 'মুসলিমের যে কোনো কষ্ট, ক্লান্তি, দুশ্চিন্তা, দুঃখ, কষ্ট বা পেরেশানি এমনকি কাঁটার খোঁচা পর্যন্ত - আল্লাহ এর দ্বারা তার গুনাহ মাফ করে দেন।',
+    source: 'সহীহ বুখারী',
+    reference: 'হাদীস নং ৫৬৪২',
+    category: 'patience',
+    relevance: 'প্রত্যাহারের কষ্ট সহ্য করলে গুনাহ মাফ হয় এবং সওয়াব পাওয়া যায়',
+  },
+
+  // Determination and Willpower
+  {
+    id: 'hadith_determination_1',
+    arabic: 'احْرِصْ عَلَى مَا يَنْفَعُكَ وَاسْتَعِنْ بِاللَّهِ وَلَا تَعْجَزْ',
+    banglaTranslation: 'যা তোমার উপকারী তার জন্য চেষ্টা করো, আল্লাহর সাহায্য চাও এবং অক্ষম হয়ো না।',
+    source: 'সহীহ মুসলিম',
+    reference: 'হাদীস নং ২৬৬৪',
+    category: 'determination',
+    relevance: 'ধূমপান ত্যাগের জন্য দৃঢ় সংকল্প এবং আল্লাহর সাহায্য চাওয়া',
+  },
+  {
+    id: 'hadith_determination_2',
+    arabic: 'إِنَّ اللَّهَ يُحِبُّ إِذَا عَمِلَ أَحَدُكُمْ عَمَلًا أَنْ يُتْقِنَهُ',
+    banglaTranslation: 'আল্লাহ পছন্দ করেন যখন তোমাদের কেউ কোনো কাজ করে, তখন যেন তা সুন্দরভাবে সম্পন্ন করে।',
+    source: 'শুআবুল ঈমান',
+    reference: 'হাদীস নং ৪৯৩৪',
+    category: 'determination',
+    relevance: 'ধূমপান ত্যাগের কাজটি পূর্ণ দৃঢ়তার সাথে সম্পন্ন করা',
+  },
+
+  // Repentance and Change
+  {
+    id: 'hadith_repentance_1',
+    arabic: 'كُلُّ ابْنِ آدَمَ خَطَّاءٌ وَخَيْرُ الْخَطَّائِينَ التَّوَّابُونَ',
+    banglaTranslation: 'প্রতিটি আদম সন্তান ভুল করে এবং ভুলকারীদের মধ্যে সর্বোত্তম হলো তওবাকারীরা।',
+    source: 'সুনান ইবনে মাজাহ',
+    reference: 'হাদীস নং ৪২৫১',
+    category: 'repentance',
+    relevance: 'ধূমপানের গুনাহ থেকে তওবা করা এবং নতুন জীবন শুরু করা',
+  },
+  {
+    id: 'hadith_repentance_2',
+    arabic: 'التَّائِبُ مِنَ الذَّنْبِ كَمَنْ لَا ذَنْبَ لَهُ',
+    banglaTranslation: 'গুনাহ থেকে তওবাকারী এমন ব্যক্তির মতো যার কোনো গুনাহ নেই।',
+    source: 'সুনান ইবনে মাজাহ',
+    reference: 'হাদীস নং ৪২৫০',
+    category: 'repentance',
+    relevance: 'ধূমপান ত্যাগ করা এবং তওবা করলে আল্লাহ ক্ষমা করে দেন',
+  },
+
+  // Gratitude
+  {
+    id: 'hadith_gratitude_1',
+    arabic: 'مَنْ لَمْ يَشْكُرِ النَّاسَ لَمْ يَشْكُرِ اللَّهَ',
+    banglaTranslation: 'যে মানুষের কৃতজ্ঞতা প্রকাশ করে না, সে আল্লাহর কৃতজ্ঞতাও প্রকাশ করে না।',
+    source: 'সুনান আবু দাউদ',
+    reference: 'হাদীস নং ৪৮১১',
+    category: 'gratitude',
+    relevance: 'স্বাস্থ্য এবং ধূমপানমুক্ত জীবনের জন্য আল্লাহর শুকরিয়া আদায়',
+  },
+];
+
+/**
  * Helper Functions
  */
 
@@ -626,12 +755,25 @@ export const getVerseByRelevance = (keyword: string): QuranVerse[] => {
   );
 };
 
-// Get daily Islamic content (combination of dua, dhikr, quote, and verse)
+// Get random hadith
+export const getRandomHadith = (): Hadith => {
+  return hadithCollection[Math.floor(Math.random() * hadithCollection.length)];
+};
+
+// Get hadith by category
+export const getHadithByCategory = (
+  category: 'health' | 'patience' | 'determination' | 'repentance' | 'gratitude'
+): Hadith[] => {
+  return hadithCollection.filter(hadith => hadith.category === category);
+};
+
+// Get daily Islamic content (combination of dua, dhikr, quote, verse, and hadith)
 export const getDailyIslamicContent = () => {
   return {
     dua: getRandomDua(),
     dhikr: getRandomDhikr(),
     quote: getRandomQuote(),
     verse: getRandomQuranVerse(),
+    hadith: getRandomHadith(),
   };
 };

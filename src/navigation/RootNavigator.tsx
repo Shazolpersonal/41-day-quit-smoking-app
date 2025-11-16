@@ -13,6 +13,13 @@ import MainTabNavigator from './MainTabNavigator';
 import {CravingSOSScreen} from '../screens/CravingSOSScreen';
 import {JournalDetailScreen} from '../screens/JournalDetailScreen';
 import {JournalEditScreen} from '../screens/JournalEditScreen';
+import DuaListScreen from '../screens/DuaListScreen';
+import DuaDetailScreen from '../screens/DuaDetailScreen';
+import QuranVersesScreen from '../screens/QuranVersesScreen';
+import QuranVerseDetailScreen from '../screens/QuranVerseDetailScreen';
+import HadithListScreen from '../screens/HadithListScreen';
+import HadithDetailScreen from '../screens/HadithDetailScreen';
+import PrayerTimesScreen from '../screens/PrayerTimesScreen';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -76,6 +83,62 @@ const RootNavigator: React.FC = () => {
           title: route.params?.entryId ? 'Edit Entry' : 'New Entry',
           animation: 'slide_from_right',
         })}
+      />
+      <Stack.Screen
+        name="DuaList"
+        component={DuaListScreen}
+        options={{
+          title: 'দোয়া সমূহ',
+          animation: 'slide_from_right',
+        }}
+      />
+      <Stack.Screen
+        name="DuaDetail"
+        component={DuaDetailScreen}
+        options={{
+          headerShown: false,
+          animation: 'slide_from_right',
+        }}
+      />
+      <Stack.Screen
+        name="QuranVerses"
+        component={QuranVersesScreen}
+        options={{
+          title: 'কুরআনের আয়াত',
+          animation: 'slide_from_right',
+        }}
+      />
+      <Stack.Screen
+        name="QuranVerseDetail"
+        component={QuranVerseDetailScreen}
+        options={{
+          headerShown: false,
+          animation: 'slide_from_right',
+        }}
+      />
+      <Stack.Screen
+        name="HadithList"
+        component={HadithListScreen}
+        options={{
+          title: 'হাদীস সমূহ',
+          animation: 'slide_from_right',
+        }}
+      />
+      <Stack.Screen
+        name="HadithDetail"
+        component={HadithDetailScreen}
+        options={{
+          headerShown: false,
+          animation: 'slide_from_right',
+        }}
+      />
+      <Stack.Screen
+        name="PrayerTimes"
+        component={PrayerTimesScreen}
+        options={{
+          title: 'নামাজের সময়',
+          animation: 'slide_from_right',
+        }}
       />
     </Stack.Navigator>
   );

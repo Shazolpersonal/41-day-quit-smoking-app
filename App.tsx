@@ -1,5 +1,5 @@
 import React, {useEffect} from 'react';
-import {StatusBar, Alert, Platform} from 'react-native';
+import {StatusBar, Alert, Platform, View} from 'react-native';
 import {NavigationContainer} from '@react-navigation/native';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
@@ -8,6 +8,8 @@ import RootNavigator from './src/navigation/RootNavigator';
 import linking from './src/navigation/linking';
 import {navigationRef} from './src/navigation/navigationService';
 import {notificationService} from './src/services/notification.service';
+import {offlineService} from './src/services/offline.service';
+import OfflineIndicator from './src/components/common/OfflineIndicator';
 
 // Context Providers
 import {UserProvider} from './src/context/UserContext';
@@ -19,9 +21,54 @@ import {JournalProvider} from './src/context/JournalContext';
 
 function App(): JSX.Element {
   useEffect(() => {
-    // Initialize notification infrastructure on app start
-    initializeNotifications();
+    // Initialize app services on start
+    initializeApp();
   }, []);
+
+  /**
+   * Initialize app services (notifications and offline functionality)
+   */
+  const initializeApp = async () => {
+    try {
+      // Initialize offline functionality first
+      await initializeOffline();
+      
+      // Then initialize notifications
+      await initializeNotifications();
+    } catch (error) {
+      console.error('Error initializing app:', error);
+      // Continue app execution even if initialization fails
+    }
+  };
+
+  /**
+   * Initialize offline functionality
+   */
+  const initializeOffline = async () => {
+    try {
+      // Verify static content is bundled
+      const hasStaticContent = offlineService.verifyStaticContent();
+      if (hasStaticContent) {
+        console.log('✓ All static content is bundled with app');
+      } else {
+        console.warn('⚠ Some static content may be missing');
+      }
+
+      // Prepare app for offline use
+      const isReady = await offlineService.prepareForOffline();
+      if (isReady) {
+        console.log('✓ App is ready for offline use');
+      } else {
+        console.log('ℹ App needs user onboarding before offline use');
+      }
+
+      // Log offline status
+      const status = await offlineService.getOfflineStatus();
+      console.log('Offline Status:', status);
+    } catch (error) {
+      console.error('Error initializing offline:', error);
+    }
+  };
 
   /**
    * Initialize notification service and request permissions
@@ -75,9 +122,12 @@ function App(): JSX.Element {
           <ProgressProvider>
             <SettingsProvider>
               <JournalProvider>
-                <NavigationContainer ref={navigationRef} linking={linking}>
-                  <RootNavigator />
-                </NavigationContainer>
+                <View style={{flex: 1}}>
+                  <OfflineIndicator />
+                  <NavigationContainer ref={navigationRef} linking={linking}>
+                    <RootNavigator />
+                  </NavigationContainer>
+                </View>
               </JournalProvider>
             </SettingsProvider>
           </ProgressProvider>

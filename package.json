@@ -1,13 +1,24 @@
 {
   "name": "QuitSmokingApp",
   "version": "1.0.0",
+  "buildNumber": "1",
   "private": true,
   "scripts": {
     "android": "react-native run-android",
+    "android:release": "react-native run-android --variant=release",
+    "android:build": "cd android && .\\gradlew assembleRelease && cd ..",
+    "android:bundle": "cd android && .\\gradlew bundleRelease && cd ..",
     "ios": "react-native run-ios",
+    "ios:release": "react-native run-ios --configuration Release",
     "start": "react-native start",
+    "start:reset": "react-native start --reset-cache",
     "test": "jest",
-    "lint": "eslint . --ext .js,.jsx,.ts,.tsx"
+    "test:coverage": "jest --coverage",
+    "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
+    "lint:fix": "eslint . --ext .js,.jsx,.ts,.tsx --fix",
+    "clean": "cd android && .\\gradlew clean && cd .. && cd ios && xcodebuild clean && cd ..",
+    "clean:android": "cd android && .\\gradlew clean && cd ..",
+    "postinstall": "cd ios && pod install && cd .."
   },
   "dependencies": {
     "react": "18.2.0",
@@ -25,7 +36,11 @@
     "react-native-gesture-handler": "^2.13.4",
     "notifee": "^7.8.0",
     "@react-native-community/geolocation": "^3.0.6",
-    "@react-native-community/datetimepicker": "^7.6.1"
+    "@react-native-community/datetimepicker": "^7.6.1",
+    "@react-native-community/netinfo": "^11.0.0",
+    "react-native-sound": "^0.11.2",
+    "react-native-track-player": "^4.0.1",
+    "react-native-haptic-feedback": "^2.2.0"
   },
   "devDependencies": {
     "@babel/core": "^7.23.2",

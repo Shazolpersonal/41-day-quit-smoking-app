@@ -1,4 +1,9 @@
 {
   "name": "QuitSmokingApp",
-  "displayName": "৪১ দিনে ধূমপান ত্যাগ"
+  "displayName": "৪১ দিনে ধূমপান ত্যাগ",
+  "version": "1.0.0",
+  "versionCode": 1,
+  "description": "41 Day Quit Smoking - Islamic approach to quit smoking in 41 days",
+  "orientation": "portrait",
+  "privacy": "public"
 }

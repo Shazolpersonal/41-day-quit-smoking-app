@@ -1,12 +1,12 @@
-import React, {useState, useEffect, useRef} from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   View,
   Text,
   StyleSheet,
-  Animated,
   TouchableOpacity,
 } from 'react-native';
 import {colors, spacing, typography, borderRadius} from '../../constants/theme';
+import {BreathingCircleAnimation} from '../animations/BreathingCircleAnimation';
 
 type BreathingPhase = 'inhale' | 'hold' | 'exhale' | 'idle';
 
@@ -21,9 +21,6 @@ export const BreathingExercise: React.FC<BreathingExerciseProps> = ({
   const [phase, setPhase] = useState<BreathingPhase>('idle');
   const [countdown, setCountdown] = useState(4);
   const [cycleCount, setCycleCount] = useState(0);
-  
-  const scaleAnim = useRef(new Animated.Value(1)).current;
-  const opacityAnim = useRef(new Animated.Value(0.3)).current;
 
   useEffect(() => {
     if (!isActive) return;
@@ -51,40 +48,6 @@ export const BreathingExercise: React.FC<BreathingExerciseProps> = ({
     return () => clearInterval(interval);
   }, [isActive, phase]);
 
-  useEffect(() => {
-    if (!isActive) return;
-
-    if (phase === 'inhale') {
-      Animated.parallel([
-        Animated.timing(scaleAnim, {
-          toValue: 1.5,
-          duration: 4000,
-          useNativeDriver: true,
-        }),
-        Animated.timing(opacityAnim, {
-          toValue: 0.8,
-          duration: 4000,
-          useNativeDriver: true,
-        }),
-      ]).start();
-    } else if (phase === 'hold') {
-      // Keep the size
-    } else if (phase === 'exhale') {
-      Animated.parallel([
-        Animated.timing(scaleAnim, {
-          toValue: 1,
-          duration: 4000,
-          useNativeDriver: true,
-        }),
-        Animated.timing(opacityAnim, {
-          toValue: 0.3,
-          duration: 4000,
-          useNativeDriver: true,
-        }),
-      ]).start();
-    }
-  }, [phase, isActive]);
-
   const handleStart = () => {
     setIsActive(true);
     setPhase('inhale');
@@ -96,8 +59,6 @@ export const BreathingExercise: React.FC<BreathingExerciseProps> = ({
     setIsActive(false);
     setPhase('idle');
     setCountdown(4);
-    scaleAnim.setValue(1);
-    opacityAnim.setValue(0.3);
     if (cycleCount > 0 && onComplete) {
       onComplete();
     }
@@ -121,21 +82,15 @@ export const BreathingExercise: React.FC<BreathingExerciseProps> = ({
       <Text style={styles.title}>শ্বাস-প্রশ্বাসের ব্যায়াম</Text>
       <Text style={styles.subtitle}>৪-৪-৪ পদ্ধতি</Text>
 
-      <View style={styles.circleContainer}>
-        <Animated.View
-          style={[
-            styles.circle,
-            {
-              transform: [{scale: scaleAnim}],
-              opacity: opacityAnim,
-            },
-          ]}
-        />
-        <View style={styles.centerContent}>
-          <Text style={styles.phaseText}>{getPhaseText()}</Text>
-          {isActive && <Text style={styles.countdown}>{countdown}</Text>}
-        </View>
-      </View>
+      <BreathingCircleAnimation
+        isActive={isActive}
+        phase={phase === 'idle' ? 'exhale' : phase}
+        duration={4000}
+      />
+      
+      {isActive && (
+        <Text style={styles.countdown}>{countdown}</Text>
+      )}
 
       {isActive && (
         <Text style={styles.cycleCount}>চক্র: {cycleCount}</Text>
@@ -177,34 +132,11 @@ const styles = StyleSheet.create({
     color: colors.text.secondary,
     marginBottom: spacing.xl,
   },
-  circleContainer: {
-    width: 250,
-    height: 250,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginVertical: spacing.xl,
-  },
-  circle: {
-    position: 'absolute',
-    width: 150,
-    height: 150,
-    borderRadius: 75,
-    backgroundColor: colors.primary.main,
-  },
-  centerContent: {
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  phaseText: {
-    fontSize: typography.fontSize.lg,
-    fontWeight: typography.fontWeight.semibold,
-    color: colors.text.primary,
-    marginBottom: spacing.sm,
-  },
   countdown: {
     fontSize: typography.fontSize.xxxl,
     fontWeight: typography.fontWeight.bold,
     color: colors.primary.main,
+    marginTop: spacing.md,
   },
   cycleCount: {
     fontSize: typography.fontSize.md,
